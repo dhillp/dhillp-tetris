@@ -1,0 +1,50 @@
+/*
+ * Pamaldeep Singh Dhillon
+ * TetrisKeyListener.java
+ * 
+ * TCSS 305 - Autumn 2015
+ * Assignment 6 - Tetris
+ */
+package view;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+import model.Board;
+
+/**
+ * Handler for Key Events.
+ * 
+ * @author Pamaldeep Dhillon
+ * @version 2 December 2015
+ */
+public class TetrisKeyListener extends KeyAdapter {
+    /** Board on which the game is played. */
+    private final Board myBoard;
+    
+    /**
+     * Constructor that initializes the fields.
+     * 
+     * @param theBoard Board on which the game is played.
+     */
+    public TetrisKeyListener(final Board theBoard) {
+        super();
+        myBoard = theBoard;
+    }
+    
+    @Override
+    public void keyPressed(final KeyEvent theEvent) {
+        if (theEvent.getKeyCode() == KeyEvent.VK_A) {
+            myBoard.moveLeft();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_D) {
+            myBoard.moveRight();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_S) {
+            myBoard.moveDown();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_W) {
+            myBoard.rotate();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_SPACE) {
+            myBoard.hardDrop();
+        }
+            
+    }
+}

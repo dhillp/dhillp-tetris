@@ -1,0 +1,32 @@
+/**
+ * 
+ */
+package view;
+
+import java.awt.EventQueue;
+
+/**
+ * @author Pamaldeep
+ * @version 1 December 2015
+ */
+public final class TetrisMain {
+    
+    /**
+     * 
+     */
+    private TetrisMain() {
+        //prevents instantiation
+    }
+    /**
+     * @param theArgs a
+     */
+    public static void main(final String[] theArgs) {
+        EventQueue.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new TetrisFrame();
+            }
+        });
+    }
+
+}

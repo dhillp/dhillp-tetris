@@ -1,0 +1,43 @@
+/**
+ * 
+ */
+package view;
+
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
+import model.Board;
+
+/**
+ * @author Pamaldeep
+ * @version 1 December 2015
+ */
+public class TetrisKeyListener extends KeyAdapter {
+    /** */
+    private final Board myBoard;
+    /**
+     * 
+     * @param theBoard a
+     */
+    public TetrisKeyListener(final Board theBoard) {
+        super();
+        myBoard = theBoard;
+    }
+    /**
+     * @param theEvent a
+     */
+    public void keyPressed(final KeyEvent theEvent) {
+        if (theEvent.getKeyCode() == KeyEvent.VK_A) {
+            myBoard.moveLeft();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_D) {
+            myBoard.moveRight();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_S) {
+            myBoard.moveDown();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_W) {
+            myBoard.rotate();
+        } else if (theEvent.getKeyCode() == KeyEvent.VK_E) {
+            myBoard.hardDrop();
+        }
+            
+    }
+}

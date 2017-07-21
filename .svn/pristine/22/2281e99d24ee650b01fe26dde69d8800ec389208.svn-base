@@ -1,0 +1,119 @@
+/**
+ * 
+ */
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+/**
+ * @author Pamaldeep
+ * @version 1
+ */
+public class ScorePanel extends JPanel {
+    /** A generated serialization ID. */
+    private static final long serialVersionUID = 2890890771986609917L;
+    /** Width of the panel. */
+    private static final int PANEL_WIDTH = 120;
+    /** Height of the panel. */
+    private static final int PANEL_HEIGHT = 260;
+    /** */
+    private static final int FONT_SIZE = 15;
+    /** Offset for the Level string. */
+    private static final int LEVEL_STRING_OFFSET = 20;
+    /** Offset for the Level. */
+    private static final int LEVEL_OFFSET = 40;
+    /** Offset for the Score string. */
+    private static final int SCORE_STRING_OFFSET = 80;
+    /** Offset for the Score. */
+    private static final int SCORE_OFFSET = 100;
+    /** Offset for the Score string. */
+    private static final int ROW_STRING_OFFSET = 140;
+    /** Offset for the Score. */
+    private static final int ROW_OFFSET = 160;
+    /** Offset for the Score string. */
+    private static final int NEXT_STRING_OFFSET = 200;
+    /** Offset for the Score. */
+    private static final int NEXT_OFFSET = 220;
+    /** 1/2 second delay to update score. */
+    private static final int MOVE_DELAY = 10;
+    /** The timer for the tetris game. */
+    private final TetrisTimer myTimer;
+    /** */
+    private final Timer myPaintTimer;
+    /**
+     * Constructor for the ScorePanel.
+     * 
+     * @param theTimer a
+     * 
+     */
+    public ScorePanel(final TetrisTimer theTimer) {
+        super();
+        myTimer = theTimer;
+        myPaintTimer = new Timer(MOVE_DELAY, new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                repaint();
+            }
+        });
+        setBackground(Color.DARK_GRAY);
+        setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+    }
+
+    /**
+     * Starts the repaint timer.
+     */
+    public void start() {
+        myPaintTimer.start();
+    }
+    /**
+     * Stops the repaint timer.
+     */
+    public void stop() {
+        myPaintTimer.stop();
+    }
+    
+    /**
+     * 
+     */
+    public void displayScore() {
+        myPaintTimer.start();
+    }
+    
+    @Override
+    public void paintComponent(final Graphics theGraphics) {
+        super.paintComponent(theGraphics);
+        final Graphics2D g2d = (Graphics2D) theGraphics;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+                             RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        //Draw LEVEL
+        g2d.setFont(new Font("TimesRoman", Font.PLAIN, FONT_SIZE));
+        g2d.setColor(Color.WHITE);
+        g2d.drawString("LEVEL: ", 2, LEVEL_STRING_OFFSET);
+        g2d.drawString(Integer.toString(myTimer.getLevel()), 2, LEVEL_OFFSET);
+        
+        //Draw SCORE
+        g2d.drawString("SCORE: ", 2, SCORE_STRING_OFFSET);
+        g2d.drawString(Integer.toString(myTimer.getScore()), 2, SCORE_OFFSET);
+        
+      //Draw ROWS CLEARED
+        g2d.drawString("ROWS CLEARED: ", 2, ROW_STRING_OFFSET);
+        g2d.drawString(Integer.toString(myTimer.getRowsCleared()), 2, ROW_OFFSET);
+        
+      //Draw NEXT LEVEL IN CLEARED
+        g2d.drawString("NEXT LVL IN: ", 2, NEXT_STRING_OFFSET);
+        g2d.drawString(Integer.toString(myTimer.getRowsUntilNextLevel())
+                       + " Rows", 2, NEXT_OFFSET);
+        
+    }
+}

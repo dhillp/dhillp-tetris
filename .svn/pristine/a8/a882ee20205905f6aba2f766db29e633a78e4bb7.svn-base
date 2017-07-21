@@ -1,0 +1,294 @@
+/*
+ * Pamaldeep Singh Dhillon
+ * TetrisFrame.java
+ * 
+ * TCSS 305 - Autumn 2015
+ * Assignment 6 - Tetris
+ */
+package view;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.ButtonGroup;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JRadioButtonMenuItem;
+
+import model.Board;
+
+/**
+ * Puts all components together into a JFrame.
+ * 
+ * @author Pamaldeep Dhillon
+ * @version 11 December 2015
+ */
+public final class TetrisFrame {
+    /** A ToolKit. */
+    private static final Toolkit KIT = Toolkit.getDefaultToolkit();
+    /** The Dimension of the screen. */
+    private static final Dimension SCREEN_SIZE = KIT.getScreenSize();
+    /** Width for the Tetris Board. */
+    private static final int BOARD_WIDTH = 10;
+    /** Height for the Tetris Board. */
+    private static final int BOARD_HEIGHT = 20;
+    /** JFrame that will contain all components. */
+    private final JFrame myFrame;
+    /** Board on which game will be played. */
+    private final Board myBoard;
+    /** Panel that will draw the board onto the screen. */
+    private final TetrisPanel myTetrisPanel;
+    /** Panel that shows the score and next piece. */
+    private final EastPanel myEastPanel;
+    /** Timer for the board. */
+    private final TetrisTimer myTimer;
+    /** Menu bar for GUI. */
+    private final JMenuBar myMenuBar;
+    /** End game button. */
+    private final JMenuItem myEndButton;
+    /** Toggle music button. */
+    private final JRadioButtonMenuItem myToggle;
+    /** Background music clip. */
+    private Clip myClip;
+    /**
+     * Constructor that initializes fields.
+     */
+    public TetrisFrame() {
+        myFrame = new JFrame("Tetris");
+        myBoard = new Board(BOARD_WIDTH, BOARD_HEIGHT);
+        myTetrisPanel = new TetrisPanel(myBoard);
+        myBoard.addObserver(myTetrisPanel);
+        myTimer = new TetrisTimer(myBoard);
+        myEastPanel = new EastPanel(myBoard, myTimer);
+        myMenuBar = new JMenuBar();
+        myEndButton = new JMenuItem("End Game");
+        myToggle = new JRadioButtonMenuItem("Toggle Music");
+        frameSetUp();
+    }
+    /**
+     * Sets up the frame by adding the menubar, keylistener, panels. Also starts the timer
+     * and sets the location for the GUI.
+     */
+    private void frameSetUp() {
+        myFrame.setResizable(false);
+        myFrame.addKeyListener(new TetrisKeyListener(myBoard, myTimer));
+        myFrame.add(myTetrisPanel, BorderLayout.CENTER);
+        myFrame.add(myEastPanel, BorderLayout.EAST);
+        myFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setUpFileMenu();
+        setUpOptionsMenu();
+        setUpHelpMenu();
+        myFrame.setJMenuBar(myMenuBar);
+        setUpSound();
+        myFrame.pack();
+        myFrame.setLocation(SCREEN_SIZE.width / 2 - myFrame.getWidth() / 2,
+                            SCREEN_SIZE.height / 2 - myFrame.getHeight() / 2);
+        myFrame.setVisible(true);
+    }
+    
+    /**
+     * Sets up the background music.
+     */
+    private void setUpSound() {
+        try {
+            final File soundFile = new File("8BitTheme.wav");
+            final AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            myClip = AudioSystem.getClip();
+            myClip.open(audioIn);
+        } catch (final UnsupportedAudioFileException e) {
+            e.printStackTrace();
+        } catch (final IOException e) {
+            e.printStackTrace();
+        } catch (final LineUnavailableException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Sets up the file menu for the GUI and adds it to the menubar.
+     */
+    private void setUpFileMenu() {
+        final JMenu fileMenu = new JMenu("File");
+        fileMenu.setMnemonic(KeyEvent.VK_F);
+        final JMenuItem start = new JMenuItem("Start Game");
+        start.setMnemonic(KeyEvent.VK_S);
+        start.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                myBoard.newGame(BOARD_WIDTH, BOARD_HEIGHT, null);
+                myTetrisPanel.endGame(false);
+                myEastPanel.displayOn();
+                myTimer.restart();
+                myClip.loop(Clip.LOOP_CONTINUOUSLY);
+                start.setEnabled(false);
+                myToggle.setEnabled(true);
+                myEndButton.setEnabled(true);
+            }
+        });
+//        final JMenuItem myEndButton = new JMenuItem("End Game");
+        myEndButton.setMnemonic(KeyEvent.VK_E);
+        myEndButton.setEnabled(false);
+        myEndButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                myTetrisPanel.endGame(true);
+                if (myClip.isRunning()) {
+                    myClip.stop();
+                }
+                myTimer.stop();
+                myToggle.setSelected(true);
+                myToggle.setEnabled(false);
+                myEndButton.setEnabled(false);
+                start.setEnabled(true);
+            }
+        });
+        final JMenuItem exit = new JMenuItem("Exit");
+        exit.setMnemonic(KeyEvent.VK_X);
+        exit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                myFrame.dispatchEvent(new WindowEvent(myFrame, WindowEvent.WINDOW_CLOSING));
+            }
+        });
+        fileMenu.add(start);
+        fileMenu.add(myEndButton);
+        fileMenu.add(exit);
+        myMenuBar.add(fileMenu);
+    }
+    
+    /**
+     * Sets up the options menu for the GUI and adds it to the menubar.
+     */
+    private void setUpOptionsMenu() {
+        final JMenu optionsMenu = new JMenu("Options");
+        optionsMenu.setMnemonic(KeyEvent.VK_O);
+        final ButtonGroup sizeGroup = new ButtonGroup();
+        final JMenu windowSize = new JMenu("Window Size");
+        windowSize.setMnemonic(KeyEvent.VK_W);
+        final JRadioButtonMenuItem small = new JRadioButtonMenuItem("Small");
+        small.setMnemonic(KeyEvent.VK_S);
+        small.setSelected(true);
+        small.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                setNewWindowSize(0);
+            }
+        });
+        sizeGroup.add(small);
+        final JRadioButtonMenuItem medium = new JRadioButtonMenuItem("Medium");
+        medium.setMnemonic(KeyEvent.VK_M);
+        medium.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                setNewWindowSize(1);
+            }
+        });
+        sizeGroup.add(medium);
+        final JRadioButtonMenuItem large = new JRadioButtonMenuItem("Large");
+        large.setMnemonic(KeyEvent.VK_L);
+        large.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                setNewWindowSize(2);
+            }
+        });
+        sizeGroup.add(large);
+        windowSize.add(small);
+        windowSize.add(medium);
+        windowSize.add(large);
+//        final JRadioButtonMenuItem toggleMusic = new JRadioButtonMenuItem("Toggle Music");
+        myToggle.setMnemonic(KeyEvent.VK_M);
+        myToggle.setSelected(true);
+        myToggle.setEnabled(false);
+        myToggle.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                if (myClip.isRunning()) {
+                    myClip.stop();
+                    myToggle.setSelected(false);
+                } else {
+                    myClip.loop(Clip.LOOP_CONTINUOUSLY);
+                    myToggle.setSelected(true);
+                }
+            }
+        });
+        optionsMenu.add(windowSize);
+        optionsMenu.add(myToggle);
+        myMenuBar.add(optionsMenu);
+    }
+    
+    /**
+     * Sets up the help menu for the GUI and adds it to the menubar.
+     */
+    private void setUpHelpMenu() {
+        final JMenu helpMenu = new JMenu("Help");
+        helpMenu.setMnemonic(KeyEvent.VK_H);
+        final JMenuItem controls = new JMenuItem("Controls...");
+        controls.setMnemonic(KeyEvent.VK_C);
+        controls.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                JOptionPane.showMessageDialog(null, "Rotate: W\nLeft: A\nDown: S\nRight: D"
+                                            + "\nDrop: Space\nPause/Resume: P", "Controls",
+                                            JOptionPane.PLAIN_MESSAGE);
+            }
+        });
+        helpMenu.add(controls);
+        final JMenuItem info = new JMenuItem("Info...");
+        info.setMnemonic(KeyEvent.VK_I);
+        info.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                JOptionPane.showMessageDialog(null, "Scoring Breakdown:\n* 1 Row: 40 x Level"
+                                           + "\n* 2 Rows: 100 x Level\n* 3 Rows: 300 x Level"
+                                           + "\n* 4 Rows: 1200 x Level\n\nLevel:\nClear 50 "
+                                           + "rows to reach Level 2. Levels increase\nevery "
+                                           + "10 rows cleared afterwards. Max Level is 15.\n"
+                                           + "\nMusic:\n8-bit style song created by Pamaldeep"
+                                           + " Dhillon.\nBased on 90's XMen theme song.",
+                                           "Info", JOptionPane.PLAIN_MESSAGE);
+            }
+        });
+        helpMenu.add(info);
+        final JMenuItem about = new JMenuItem("About...");
+        about.setMnemonic(KeyEvent.VK_A);
+        about.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                JOptionPane.showMessageDialog(null, "TCSS 305 Tetris, Autumn 2015"
+                                            + "\nAuthor: Pamaldeep Singh Dhillon", "About ",
+                                            JOptionPane.PLAIN_MESSAGE);
+            }
+        });
+        helpMenu.add(about);
+        myMenuBar.add(helpMenu);
+    }
+    
+    /**
+     * Changes the size of the TetrisPanel, then repacks the frame and changes the location
+     * of the GUI so that the resized frame is still in the center of the screen.
+     * 
+     * @param theSize Integer that correlates to a size and gets passed to the TetrisPanel.
+     */
+    private void setNewWindowSize(final int theSize) {
+        myTetrisPanel.setNewSize(theSize);
+        myFrame.pack();
+        myFrame.setLocation(SCREEN_SIZE.width / 2 - myFrame.getWidth() / 2,
+                            SCREEN_SIZE.height / 2 - myFrame.getHeight() / 2);
+    }
+}

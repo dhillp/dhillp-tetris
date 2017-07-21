@@ -1,0 +1,52 @@
+/**
+ * 
+ */
+package view;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Timer;
+
+import model.Board;
+
+/**
+ * @author Pamaldeep
+ * @version 1 December 2015
+ */
+public final class TetrisTimer {
+    /** */
+    private static final int INITIAL_DELAY = 1000;
+    /** */
+    private static final int MOVE_DELAY = 1000;
+    /** */
+    private final Timer myTimer;
+    /** */
+    private final Board myBoard;
+    /**
+     * 
+     * @param theBoard a
+     */
+    public TetrisTimer(final Board theBoard) {
+        myBoard = theBoard;
+        myTimer = new Timer(MOVE_DELAY, new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent theEvent) {
+                myBoard.step();
+            }
+        });
+        myTimer.setInitialDelay(INITIAL_DELAY);
+    }
+    /**
+     * 
+     */
+    public void start() {
+        myTimer.start();
+    }
+    /**
+     * 
+     */
+    public void stop() {
+        myTimer.stop();
+    }
+}

@@ -1,0 +1,58 @@
+/*
+ * Pamaldeep Singh Dhillon
+ * EastPanel.java
+ * 
+ * TCSS 305 - Autumn 2015
+ * Assignment 6 - Tetris
+ */
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+
+import model.Board;
+
+/**
+ * Panel located on the east of the GUI, which houses the ScorePanel and NextPiecePanel.
+ * 
+ * @author Pamaldeep Dhillon
+ * @version 2 December 2015
+ */
+public class EastPanel extends JPanel {
+    /** A generated serialization ID. */
+    private static final long serialVersionUID = 2890890771986609917L;
+    /** Width of the panel. */
+    private static final int PANEL_WIDTH = 140;
+    /** Height of the panel. */
+    private static final int PANEL_HEIGHT = 380;
+    /** Panel that shows the next piece that will be in play. */
+    private final NextPiecePanel myPiecePanel;
+    
+    /**
+     * Constructor for the EastPanel.
+     * 
+     * @param theBoard Board on which game is played.
+     */
+    public EastPanel(final Board theBoard) {
+        super();
+        setBackground(Color.DARK_GRAY);
+        setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+        myPiecePanel = new NextPiecePanel(theBoard);
+        theBoard.addObserver(myPiecePanel);
+        setUpPanel();
+    }
+    
+    /**
+     * Sets up the panel by adding the score panel and next piece panel to it.
+     */
+    private void setUpPanel() {
+        final Box nextBox = new Box(BoxLayout.LINE_AXIS);
+        nextBox.add(myPiecePanel);
+        add(nextBox);
+    }
+    
+}

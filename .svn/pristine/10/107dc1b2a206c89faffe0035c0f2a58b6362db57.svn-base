@@ -1,0 +1,51 @@
+/**
+ * 
+ */
+package view;
+
+import java.awt.Color;
+import java.awt.Dimension;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JPanel;
+
+import model.Board;
+
+/**
+ * @author Pamaldeep
+ * @version 1 December 2015
+ */
+public class EastPanel extends JPanel {
+    /** */
+    private static final long serialVersionUID = 2890890771986609917L;
+    /** */
+    private static final int PANEL_WIDTH = 140;
+    /** */
+    private static final int PANEL_HEIGHT = 420;
+    /** */
+    private final NextPiecePanel myPiecePanel;
+    /**
+     * @param theBoard a
+     */
+    public EastPanel(final Board theBoard) {
+        super();
+        setBackground(Color.DARK_GRAY);
+        setPreferredSize(new Dimension(PANEL_WIDTH, PANEL_HEIGHT));
+        myPiecePanel = new NextPiecePanel(theBoard);
+        theBoard.addObserver(myPiecePanel);
+        setUpPanel();
+    }
+    /**
+     * 
+     */
+    private void setUpPanel() {
+        final Box controlsBox = new Box(BoxLayout.LINE_AXIS);
+        controlsBox.add(new ControlsPanel());
+        add(controlsBox);
+        final Box nextBox = new Box(BoxLayout.LINE_AXIS);
+        nextBox.add(myPiecePanel);
+        add(nextBox);
+    }
+    
+}
